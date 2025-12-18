@@ -1,0 +1,46 @@
+version: "3.8"
+
+services:
+  moru-payment-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      # Saleor Configuration
+      - APL=file
+
+      # Moru Payment Gateway Configuration
+      - MORU_API_URL=${MORU_API_URL}
+      - MORU_AUTH_KEY=${MORU_AUTH_KEY}
+
+      # App Configuration
+      - APP_DEBUG=${APP_DEBUG:-false}
+      - APP_API_BASE_URL=${APP_API_BASE_URL}
+      - NEXT_PUBLIC_STOREFRONT_URL=${NEXT_PUBLIC_STOREFRONT_URL}
+
+      # Node Environment
+      - NODE_ENV=production
+    volumes:
+      # Persist APL data across container restarts
+      - app-auth-data:/app/.saleor-app-auth
+    restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "--no-verbose",
+          "--tries=1",
+          "--spider",
+          "http://localhost:3000/api/manifest",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  app-auth-data:
+    driver: local

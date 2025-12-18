@@ -1,0 +1,52 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  REGISTRY: registry.digitalocean.com
+  IMAGE_NAME: moru-payment-app
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Install doctl
+      uses: digitalocean/action-doctl@v2
+      with:
+        token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+    
+    - name: Log in to DigitalOcean Container Registry
+      run: doctl registry login --expiry-seconds 600
+    
+    - name: Build Docker image
+      run: |
+        docker build \
+          -t ${{ env.REGISTRY }}/${{ secrets.REGISTRY_NAME }}/${{ env.IMAGE_NAME }}:latest \
+          -t ${{ env.REGISTRY }}/${{ secrets.REGISTRY_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }} \
+          .
+    
+    - name: Push images to registry
+      run: |
+        docker push ${{ env.REGISTRY }}/${{ secrets.REGISTRY_NAME }}/${{ env.IMAGE_NAME }}:latest
+        docker push ${{ env.REGISTRY }}/${{ secrets.REGISTRY_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+    
+    - name: Update DigitalOcean App
+      if: secrets.APP_ID != ''
+      run: |
+        doctl apps update ${{ secrets.APP_ID }} \
+          --image ${{ env.REGISTRY }}/${{ secrets.REGISTRY_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+    
+    - name: Deployment summary
+      run: |
+        echo "### Deployment Complete! :rocket:" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Image:** \`${{ env.REGISTRY }}/${{ secrets.REGISTRY_NAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "**Commit:** \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY

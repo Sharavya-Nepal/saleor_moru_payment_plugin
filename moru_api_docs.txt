@@ -1,0 +1,226 @@
+Moru Digital Wallet Payment Gateway Integration
+Document
+                                  December 10, 2024
+Table of content
+...........................................................................................................................................1
+1. Introduction....................................................................................................................3
+1.1 About Moru..............................................................................................................3
+1.2 Purpose of this Document.......................................................................................3
+1.3 Product Perspective................................................................................................3
+2. Process Flow for Payment Gateway.............................................................................4
+Integration Flow.............................................................................................................4
+3. Payment Initiation..........................................................................................................5
+4. Transaction Status.........................................................................................................7
+Appendix..........................................................................................................................11
+Expected Status Codes...................................................................................................11
+1. Introduction
+1.1 About Moru
+MoRu is a digital wallet that follows you wherever you go. It ensures real time, secure
+and instant payment to various merchants. With MoRu, you can make various payments
+such as utility bill payment (NEA, Khanepani, etc.), recharge mobile, pay internet bill,
+airlines ticketing, movie ticketing, make bank transfer (MoRu to bank) and many more.
+simply log in with your username and password and pick which one you want to use.
+1.2 Purpose of this Document
+This document aims to specify all the resources for developers to integrate the moru
+payment gateway into their website and mobile allowing their customers to make faster
+payment.
+1.3 Product Perspective
+The moru payment gateway is the system that allows the merchant users to make the 
+payment with moru being staying within the merchant website.
+Merchant Interface:The process is initiated on the merchant website. The merchant 
+website will create the transaction with a certain amount to be paid by its user.
+Moru Interface:The moru interface will appear on the merchant website when users 
+click the pay with moru button. The moru interface will ask for the user login credential 
+and then the user's payment transaction will proceed.
+2. Process Flow for Payment Gateway
+You should have applied for moru payment gateway user and have received your test
+access key & secret key. If you haven’t registered with moru yet, please sign up at
+moru.com.np. If you need any help while creating an account feel free to contact us.
+After receiving the test credentials you can now follow this document instruction on
+integrating gateway on your web or mobile application.
+Integration Flow
+1. At first, the third party sends payment initiate request with, return_url, amount,
+transaction_id, merchant_info and additional_fields (for additional validations) on
+payload.
+2. The third party then redirects users to the payment_url received from initiate
+payment.
+3. After  successful  payment,  a  callback  is  made  on  return_url  provided  during
+initiate payment, with state, transaction_id, and moru_txn_identifier on params.
+4. After callback is received, the third party needs to call check payment api for
+detailed transaction status.
+Base url: https://test.moru-gateway.pnpl.com.np/gateway
+transaction_id : Your unique transaction identifier which you send when initiating
+the transaction
+3. Payment Initiation
+POST API:   /  v2/initiate  
+Field
+Data Type Description Requi
+red
+1 return_url String Return URL where moru system
+notifies payment information
+Y
+2 transaction_id String Unique id for each transaction Y
+3 additional_fields Object Additional data of the transaction N
+4 amount String Amount to pay Y
+5 merchant_info Object Merchant additional info Y
+5.1 email String User email Y
+5.2 name String User name N
+Request Example
+Headers
+{
+"Authorization": 
+"AUTH_KEY
+test_184ea325975341cebd04e481c98d94e24b553e01e8c04f6facfe8105d
+601ad60'",
+“Content-Type”: “application/json”
+}
+Body
+{
+"return_url": "return.com",
+    "amount": "200",
+    "transaction_id": "txn3",
+    "merchant_info": {
+        "email": "test@gmail.com"
+    },
+    "additional_fields": {}
+}
+Response Example
+1. Success Response:   
+{
+    "code": "0000",
+    "data": {
+        "additional_fields": {},
+        "amount": 200.0,
+        "mpi": "7a83b45591a14e8aa4cd51d71048d8a5",
+        "msi": "M1P40812G23010081208T9813",
+        "payment_url": "https://sandbox.frontend-web-frontend.pnpl.com.np/payment-
+gateway?
+mpi=7a83b45591a14e8aa4cd51d71048d8a5&msi=M1P40812G23010081208T9813",
+        "source_type": "Internal",
+        "state": "Initiated",
+        "transaction_id": "txn3"
+    },
+    "errors": {},
+    "message": "Success"
+}
+2. For Invalid input field:   
+{
+    "code": 8006,
+    "data": {},
+    "errors": {
+        "validation_errors": {
+            "amount": "Amount is required.",
+            "merchant_info": {
+                "email": "Email is required."
+            }
+        }
+    },
+    "message": "Technical Validation Failed: Invalid Input Request."
+}
+3. For Dupliated Transaction ID:   
+{
+    "code": 8008,
+    "data": {},
+    "errors": {},
+    "message": "Transaction ID Already Used."
+}
+4. Post method to check payment status
+Post URL: /  v2/check  
+Field Data Type Description Required
+transaction_i
+d
+String transaction_id  from  initiate  payment
+request or moru_txn_identifier.
+Y
+Request Example
+Headers
+{
+"Authorization": 
+"AUTH_KEY
+test_184ea325975341cebd04e481c98d94e24b553e01e8c04f6facfe8105d601ad60",
+“Content-Type”: “application/json”
+}
+Body
+{
+    "transaction_id": "txn3"
+}
+Response Example
+For Success Payment
+{
+    "code": "0000",
+    "data": {
+        "additional_fields": {},
+        "amount": 200.0,
+        "completed": true,
+        "initiated_time": "2024-12-11 12:23:01",
+        "moru_txn_identifier": "7a83b45591a14e8aa4cd51d71048d8a5",
+        "state": "Completed",
+        "transaction_id": "txn3"
+    },
+    "errors": {},
+    "message": "Transation Success."
+}
+For Failed Payment
+{
+    "code": "8010",
+    "data": {
+        "additional_fields": {},
+        "amount": 200.0,
+        "completed": false,
+        "initiated_time": "2024-12-06 14:40:22",
+        "moru_txn_identifier": "b3a584f3265e46a3b07d73d96fe69a2f",
+        "state": "Failed",
+        "transaction_id": "asssasa11"
+    },
+    "errors": {},
+    "message": "Transaction Failed."
+}
+For Canceled Payment
+{
+    "code": "8011",
+    "data": {
+        "additional_fields": {},
+        "amount": 200.0,
+        "completed": false,
+        "initiated_time": "2024-12-06 14:30:30",
+        "moru_txn_identifier": "1f0b395bb31441848450da3d6be699d5",
+        "state": "Canceled",
+        "transaction_id": "asasa11"
+    },
+    "errors": {},
+    "message": "Transaction Canceled."
+}
+Callback Request Sample.
+return.com?
+state=Pending&transaction_id=txn3&moru_txn_identifier=8921015905a74c6cbcc3
+2656067f1e0c
+Transaction State Description
+Pending Payment been initiated but not been 
+completed.
+Canceled Payment has been canceled by user.
+Failed Payment failed.
+Completed Payment Completed.
+Response Code
+Result Code Description
+0000 Success
+8000 User not registered or not found.
+8001 User is disabled
+8002 Gateway disabled
+8003 Amount limit for Gateway
+8004 Amount limit for gateway user
+8006 Invalid Field Validation Errors
+8007 For Invalid Authorization Format.
+8008 For Duplicate transaction ids
+9005 Transaction Request not found.
+Appendix
+Expected Status Codes
+Status Codes Description
+200 OK
+400 BadRequest
+401 Unauthorized (AuthenticationRequired)
+403 Forbidden
+404 NotFound
+405 MethodNotAllowed
+422 UnprocessableEntity (TokenExpired)
+500 InternalServerError
+

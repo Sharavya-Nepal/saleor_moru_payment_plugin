@@ -1,0 +1,81 @@
+# DigitalOcean App Platform Configuration
+# Deploy using: doctl apps create --spec app.yaml
+
+name: moru-payment-app
+region: nyc
+
+services:
+- name: web
+  # Use image from DigitalOcean Container Registry
+  image:
+    registry_type: DOCR
+    repository: moru-payment-app
+    tag: latest
+  
+  # Resource allocation
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  
+  # Application configuration
+  http_port: 3000
+  
+  # Environment variables
+  envs:
+  # Saleor Configuration
+  - key: APL
+    value: file
+    scope: RUN_TIME
+  
+  # For production, use Upstash instead:
+  # - key: APL
+  #   value: upstash
+  # - key: UPSTASH_URL
+  #   value: ${UPSTASH_URL}
+  #   type: SECRET
+  # - key: UPSTASH_TOKEN
+  #   value: ${UPSTASH_TOKEN}
+  #   type: SECRET
+  
+  # Moru Payment Gateway Configuration
+  - key: MORU_API_URL
+    value: https://test.moru-gateway.pnpl.com.np/gateway
+    scope: RUN_TIME
+  
+  - key: MORU_AUTH_KEY
+    value: ${MORU_AUTH_KEY}
+    type: SECRET
+    scope: RUN_TIME
+  
+  # App Configuration
+  - key: APP_DEBUG
+    value: "false"
+    scope: RUN_TIME
+  
+  - key: APP_API_BASE_URL
+    value: ${APP_URL}
+    scope: RUN_TIME
+  
+  - key: NEXT_PUBLIC_STOREFRONT_URL
+    value: https://dev.reboncelnepal.com
+    scope: RUN_AND_BUILD_TIME
+  
+  # Node Environment
+  - key: NODE_ENV
+    value: production
+    scope: RUN_TIME
+  
+  # Health check configuration
+  health_check:
+    http_path: /api/manifest
+    initial_delay_seconds: 10
+    period_seconds: 30
+    timeout_seconds: 10
+    success_threshold: 1
+    failure_threshold: 3
+
+# Optional: Add database or other services here
+# databases:
+# - name: moru-db
+#   engine: PG
+#   version: "15"
+#   production: false

@@ -1,0 +1,55 @@
+fragment TransactionInitializeSessionPayload on TransactionInitializeSession {
+  action {
+    amount
+    currency
+    actionType
+  }
+  merchantReference
+  data
+  sourceObject {
+    ... on Checkout {
+      id
+      user {
+        id
+        email
+        firstName
+        lastName
+      }
+      billingAddress {
+        firstName
+        lastName
+        streetAddress1
+        city
+        postalCode
+        country {
+          code
+        }
+      }
+    }
+    ... on Order {
+      id
+      user {
+        id
+        email
+        firstName
+        lastName
+      }
+      billingAddress {
+        firstName
+        lastName
+        streetAddress1
+        city
+        postalCode
+        country {
+          code
+        }
+      }
+    }
+  }
+}
+
+subscription TransactionInitializeSession {
+  event {
+    ...TransactionInitializeSessionPayload
+  }
+}

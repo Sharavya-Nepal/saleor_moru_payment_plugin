@@ -1,0 +1,48 @@
+{
+  "name": "moru-saleor-payment-app",
+  "version": "1.0.0",
+  "description": "Saleor Payment App for Moru Payment Wallet integration",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "pnpm generate && next build",
+    "start": "next start",
+    "lint": "next lint",
+    "generate": "graphql-codegen",
+    "test": "vitest",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@saleor/app-sdk": "^0.50.1",
+    "@tanstack/react-query": "^5.17.19",
+    "graphql": "^16.8.1",
+    "graphql-tag": "^2.12.6",
+    "next": "^14.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "urql": "^4.0.6",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "^5.0.0",
+    "@graphql-codegen/introspection": "^4.0.0",
+    "@graphql-codegen/typed-document-node": "^5.0.1",
+    "@graphql-codegen/typescript": "^4.0.1",
+    "@graphql-codegen/typescript-operations": "^4.0.1",
+    "@graphql-codegen/typescript-urql": "^4.0.0",
+    "@types/node": "^20.11.5",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@typescript-eslint/eslint-plugin": "^6.19.0",
+    "@typescript-eslint/parser": "^6.19.0",
+    "eslint": "^8.56.0",
+    "eslint-config-next": "^14.1.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.1"
+  },
+  "engines": {
+    "node": ">=18.17.0 <=20",
+    "pnpm": ">=9"
+  }
+}

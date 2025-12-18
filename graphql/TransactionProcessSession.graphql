@@ -1,0 +1,27 @@
+fragment TransactionProcessSessionPayload on TransactionProcessSession {
+  action {
+    amount
+    currency
+    actionType
+  }
+  merchantReference
+  transaction {
+    id
+    pspReference
+  }
+  data
+  sourceObject {
+    ... on Checkout {
+      id
+    }
+    ... on Order {
+      id
+    }
+  }
+}
+
+subscription TransactionProcessSession {
+  event {
+    ...TransactionProcessSessionPayload
+  }
+}
