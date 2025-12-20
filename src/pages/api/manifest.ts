@@ -9,25 +9,47 @@ import { transactionCancelRequestedWebhook } from "./webhooks/transaction-cancel
 
 export default createManifestHandler({
   async manifestFactory({ appBaseUrl, request: _request }) {
+    // Use environment variable for base URL if provided (for reverse proxy setups)
+    // Otherwise fall back to auto-detected appBaseUrl (for local development)
+    const baseUrl = process.env.SALEOR_APP_URL || appBaseUrl;
+    
     const manifest: AppManifest = {
       id: "moru.payment.app",
       version: "1.0.0",
       name: "Moru Payment App",
       about: "Saleor Payment App for Moru Payment Wallet integration",
       permissions: ["HANDLE_PAYMENTS"],
-      appUrl: appBaseUrl,
-      tokenTargetUrl: `${appBaseUrl}/api/register`,
-      dataPrivacyUrl: `${appBaseUrl}/data-privacy`,
+      appUrl: baseUrl,
+      tokenTargetUrl: `${baseUrl}/api/register`,
+      dataPrivacyUrl: `${baseUrl}/data-privacy`,
       homepageUrl: "https://moru.example.com",
       supportUrl: "https://moru.example.com/support",
       extensions: [],
       webhooks: [
-        paymentGatewayInitializeSessionWebhook.getWebhookManifest(appBaseUrl),
-        transactionInitializeSessionWebhook.getWebhookManifest(appBaseUrl),
-        transactionProcessSessionWebhook.getWebhookManifest(appBaseUrl),
-        transactionChargeRequestedWebhook.getWebhookManifest(appBaseUrl),
-        transactionRefundRequestedWebhook.getWebhookManifest(appBaseUrl),
-        transactionCancelRequestedWebhook.getWebhookManifest(appBaseUrl),
+        {
+          ...paymentGatewayInitializeSessionWebhook.getWebhookManifest(baseUrl),
+          targetUrl: `${baseUrl}${paymentGatewayInitializeSessionWebhook.webhookPath}`,
+        },
+        {
+          ...transactionInitializeSessionWebhook.getWebhookManifest(baseUrl),
+          targetUrl: `${baseUrl}${transactionInitializeSessionWebhook.webhookPath}`,
+        },
+        {
+          ...transactionProcessSessionWebhook.getWebhookManifest(baseUrl),
+          targetUrl: `${baseUrl}${transactionProcessSessionWebhook.webhookPath}`,
+        },
+        {
+          ...transactionChargeRequestedWebhook.getWebhookManifest(baseUrl),
+          targetUrl: `${baseUrl}${transactionChargeRequestedWebhook.webhookPath}`,
+        },
+        {
+          ...transactionRefundRequestedWebhook.getWebhookManifest(baseUrl),
+          targetUrl: `${baseUrl}${transactionRefundRequestedWebhook.webhookPath}`,
+        },
+        {
+          ...transactionCancelRequestedWebhook.getWebhookManifest(baseUrl),
+          targetUrl: `${baseUrl}${transactionCancelRequestedWebhook.webhookPath}`,
+        },
       ],
       author: "Moru Payment Solutions",
     };
