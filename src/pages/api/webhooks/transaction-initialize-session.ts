@@ -100,7 +100,7 @@ export default transactionInitializeSessionWebhook.createHandler(async (req, res
     // Build return URL - redirect directly to storefront
     const storefrontUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || "http://localhost:3001";
     const returnUrl = checkoutOrOrderId 
-      ? `${storefrontUrl}/checkout?payment=success&checkout=${encodeURIComponent(checkoutOrOrderId)}`
+      ? `${storefrontUrl}/checkout/${encodeURIComponent(checkoutOrOrderId)}/paymentsuccess/`
       : `${storefrontUrl}/checkout?payment=success`;
 
     // Initialize payment with Moru
