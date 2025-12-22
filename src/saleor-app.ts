@@ -8,11 +8,13 @@ const aplType = process.env.APL || "file";
 
 let apl: APL;
 
+
 switch (aplType) {
   case "upstash":
     if (!process.env.UPSTASH_URL || !process.env.UPSTASH_TOKEN) {
       throw new Error("Upstash APL requires UPSTASH_URL and UPSTASH_TOKEN environment variables");
     }
+    console.log("Using Upstash APL with URL:", process.env.UPSTASH_URL, "and Token:", process.env.UPSTASH_TOKEN);
     apl = new UpstashAPL({
       restURL: process.env.UPSTASH_URL,
       restToken: process.env.UPSTASH_TOKEN,
