@@ -97,11 +97,17 @@ export default transactionInitializeSessionWebhook.createHandler(async (req, res
     // Generate unique transaction ID
     const transactionId = payload.merchantReference || `saleor_${crypto.randomUUID()}`;
 
-    // Build return URL - redirect directly to storefront
-    const storefrontUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || "http://localhost:3001";
-    const returnUrl = checkoutOrOrderId 
-      ? `${storefrontUrl}/checkout/${encodeURIComponent(checkoutOrOrderId)}/paymentsuccess/`
-      : `${storefrontUrl}/checkout?payment=success`;
+    // Build return URL - redirect to our payment callback endpoint
+    // The callback will verify payment status and redirect to storefront
+    const appUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || "http://localhost:3000";
+    const callbackUrl = new URL(`${appUrl}/checkout/${checkoutOrOrderId}/payment/success`);
+    const returnUrl = callbackUrl.toString();
+
+    
+    console.log("Details", {
+      returnUrl: returnUrl,
+
+  });
 
     // Initialize payment with Moru
     const moruResponse = await moruService.initiatePayment({
@@ -113,8 +119,8 @@ export default transactionInitializeSessionWebhook.createHandler(async (req, res
         name: user
           ? `${user.firstName || ""} ${user.lastName || ""}`.trim()
           : billingAddress
-          ? `${billingAddress.firstName || ""} ${billingAddress.lastName || ""}`.trim()
-          : undefined,
+            ? `${billingAddress.firstName || ""} ${billingAddress.lastName || ""}`.trim()
+            : undefined,
       },
       additional_fields: {},
     });

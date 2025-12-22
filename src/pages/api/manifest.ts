@@ -51,7 +51,7 @@ export default createManifestHandler({
           targetUrl: `${baseUrl}${transactionCancelRequestedWebhook.webhookPath}`,
         },
       ],
-      author: "Moru Payment Solutions",
+      author: "Moru Payments",
     };
 
     return manifest;

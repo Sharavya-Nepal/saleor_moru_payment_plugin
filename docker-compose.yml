@@ -2,9 +2,10 @@ version: "3.8"
 
 services:
   moru-payment-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    image: registry.digitalocean.com/reboncel/moru-payment-app:latest
     ports:
       - "3000:3000"
     environment:

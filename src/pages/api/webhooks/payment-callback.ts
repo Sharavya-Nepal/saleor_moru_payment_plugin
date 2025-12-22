@@ -40,56 +40,47 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // Get the storefront URL from environment variables
     const storefrontUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || "http://localhost:3001";
 
-    // Build redirect URL with checkout ID if available
+    // Build redirect URL with checkout ID if available, and add query params for transaction_id and status
+
+    // Build redirect URL with /status/{status}/ and query params for state and transaction_id
     const buildRedirectUrl = (status: string) => {
-      const params = new URLSearchParams({
-        payment: status,
-        transaction_id: transaction_id as string,
-      });
-      
+      let url;
       if (checkout) {
-        params.append('checkout', checkout as string);
+        url = `${storefrontUrl}/checkout/${encodeURIComponent(checkout as string)}/status/${status}/`;
+      } else {
+        url = `${storefrontUrl}/status/${status}/`;
       }
-      
-      return `${storefrontUrl}/checkout?${params.toString()}`;
+      const params = new URLSearchParams();
+      if (typeof state === 'string') params.set('state', state);
+      if (transaction_id) params.set('transaction_id', transaction_id as string);
+      return params.toString() ? `${url}?${params.toString()}` : url;
     };
 
-    // You can customize these redirect URLs based on your frontend
     if (paymentStatus === "Completed") {
       // Payment successful - redirect back to storefront to complete checkout
-      // The storefront will call transactionProcess and checkoutComplete mutations
       res.redirect(buildRedirectUrl('success'));
       return;
     } else if (paymentStatus === "Pending") {
-      // Payment pending - redirect to storefront
       res.redirect(buildRedirectUrl('pending'));
       return;
     } else if (paymentStatus === "Canceled") {
-      // Payment canceled - redirect to storefront
       res.redirect(buildRedirectUrl('canceled'));
       return;
     } else {
-      // Unknown payment status - redirect with error
       res.redirect(buildRedirectUrl('error'));
       return;
     }
   } catch (error) {
     console.error("Error processing payment callback:", error);
-    
+
     // Redirect to storefront with error
     const storefrontUrl = process.env.NEXT_PUBLIC_STOREFRONT_URL || "http://localhost:3001";
-    
-    const params = new URLSearchParams({
-      payment: 'error',
-      transaction_id: (transaction_id as string) || 'unknown',
-      error: error instanceof Error ? error.message : "Unknown error"
-    });
-    
+
     if (checkout) {
-      params.append('checkout', checkout as string);
+      res.redirect(`${storefrontUrl}/checkout/${encodeURIComponent(checkout as string)}/payment/error/`);
+    } else {
+      res.redirect(`${storefrontUrl}/payment/error/`);
     }
-    
-    res.redirect(`${storefrontUrl}/checkout?${params.toString()}`);
     return;
   }
 }

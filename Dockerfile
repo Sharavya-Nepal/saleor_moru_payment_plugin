@@ -15,6 +15,8 @@ COPY package.json pnpm-lock.yaml ./
 # Install dependencies
 RUN pnpm install --frozen-lockfile
 
+
+
 # Stage 2: Builder
 FROM node:20-alpine AS builder
 RUN corepack enable && corepack prepare pnpm@9 --activate

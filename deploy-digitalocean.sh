@@ -36,7 +36,7 @@ doctl registry login
 
 # Step 2: Build the Docker image
 echo -e "${YELLOW}Step 2: Building Docker image for amd64 platform...${NC}"
-docker buildx build --platform linux/amd64 -t ${IMAGE_NAME}:${VERSION} --load .
+docker buildx build --platform linux/amd64 -t ${IMAGE_NAME}:${VERSION} --load . --no-cache 
 
 # Step 3: Tag the image for DigitalOcean Registry
 echo -e "${YELLOW}Step 3: Tagging image for registry...${NC}"
