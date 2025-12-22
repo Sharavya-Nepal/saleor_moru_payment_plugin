@@ -17,13 +17,13 @@ export default createManifestHandler({
       id: "moru.payment.app",
       version: "1.0.0",
       name: "Moru Payment App",
-      about: "Saleor Payment App for Moru Payment Wallet integration",
+      about: "Saleor Payment App for Moru Payment Wallet integration by Sharavya Technologies",
       permissions: ["HANDLE_PAYMENTS"],
       appUrl: baseUrl,
       tokenTargetUrl: `${baseUrl}/api/register`,
       dataPrivacyUrl: `${baseUrl}/data-privacy`,
-      homepageUrl: "https://moru.example.com",
-      supportUrl: "https://moru.example.com/support",
+      homepageUrl: "https://sharavya.com",
+      supportUrl: "https://sharavya.com/support",
       extensions: [],
       webhooks: [
         {
@@ -51,7 +51,7 @@ export default createManifestHandler({
           targetUrl: `${baseUrl}${transactionCancelRequestedWebhook.webhookPath}`,
         },
       ],
-      author: "Moru Payments",
+      author: "Sharavya Technologies",
     };
 
     return manifest;
